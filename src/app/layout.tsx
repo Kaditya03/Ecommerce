@@ -2,8 +2,8 @@ import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
 import Navbar from "@/components/Navbar";
-import Image from "next/image";
 import Footer from "@/components/Footer";
+import { MenuProvider } from "@/context/MenuContext";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -14,15 +14,15 @@ const geistMono = Geist_Mono({
   variable: "--font-geist-mono",
   subsets: ["latin"],
 });
+
 export const metadata: Metadata = {
   title: "Aurindel Handicrafts",
-  description: "Discover handcrafted decor, jewelry, and artisan goods made with love at Aurindel.",
+  description:
+    "Discover handcrafted decor, jewelry, and artisan goods made with love at Aurindel.",
   icons: {
-    icon: "/favicon.ico.jpg", // ✅ place in /public/
+    icon: "/favicon.ico.jpg", 
   },
 };
-
-
 
 export default function RootLayout({
   children,
@@ -34,9 +34,12 @@ export default function RootLayout({
       <body
         className={`${geistSans.variable} ${geistMono.variable} antialiased`}
       >
-        <Navbar />
-        {children}
-        <Footer />
+        {/* ✅ Wrap EVERYTHING inside MenuProvider */}
+        <MenuProvider>
+          <Navbar />
+          {children}
+          <Footer />
+        </MenuProvider>
       </body>
     </html>
   );

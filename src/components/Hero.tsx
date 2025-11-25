@@ -1,44 +1,133 @@
-import React from 'react'
-import Image from 'next/image'
+"use client";
+
+import React from "react";
+import Image from "next/image";
+import { Button } from "./ui/button";
+import { motion, AnimatePresence } from "framer-motion";
+import { useMenu } from "@/context/MenuContext";
+
+// 👉 Slides Data
+const slides = [
+  {
+    image: "/images/hero3.jpg",
+    title: "New Arrivals",
+    desc: "Discover handcrafted elegance made for you.",
+  },
+  {
+    image: "/images/hero2.jpg",
+    title: "Handmade With Love",
+    desc: "Exclusive artisan creations crafted by skilled hands.",
+  },
+  {
+    image: "/images/hero1.jpg",
+    title: "Premium Craft Designs",
+    desc: "Elevate your space with our limited-edition decor.",
+  },
+];
 
 const Hero = () => {
+  const [index, setIndex] = React.useState(0);
+  const {menuOpen}=useMenu();
+
+  // Auto Slide
+  React.useEffect(() => {
+    const interval = setInterval(() => {
+      setIndex((prev) => (prev + 1) % slides.length);
+    }, 4000);
+
+    return () => clearInterval(interval);
+  }, []);
+
+  // Manual Navigation
+  const nextSlide = () => {
+    setIndex((prev) => (prev + 1) % slides.length);
+  };
+
+  const prevSlide = () => {
+    setIndex((prev) => (prev - 1 + slides.length) % slides.length);
+  };
+
   return (
-   
-<section className="relative flex flex-col items-center justify-center text-center min-h-[90vh] px-6 pt-24 overflow-hidden">
-  
-  {/* TEXT CONTENT */}
-  <h1 className="text-5xl md:text-6xl font-semibold text-indigo-700 mb-4 z-10">
-    Discover Handcrafted Elegance
-  </h1>
-  <p className="text-gray-600 max-w-2xl text-lg md:text-xl mb-8 z-10">
-    Experience the artistry of handmade creations that bring warmth, culture, and craftsmanship into your home.
-  </p>
+    <div className="w-full h-auto min-h-[500px] md:h-[600px] lg:h-[705px] flex flex-col md:flex-row overflow-hidden">
 
-  <div className="flex gap-4 z-10">
-    <button className="bg-indigo-600 text-white px-6 py-3 rounded-full hover:bg-indigo-700 transition">
-      Explore Collection
+      {/* LEFT SECTION (Image) */}
+      <div className="w-full md:w-3/5 h-[300px] md:h-full relative">
+
+      {/* Navigation Arrows (Right Corner) */}
+{!menuOpen && (
+  <div className="absolute bottom-4 right-4 z-50 flex gap-2 pointer-events-auto">
+    {/* PREV */}
+    <button
+      onClick={prevSlide}
+      className="bg-white/70 hover:bg-white shadow-md p-2 rounded-full transition backdrop-blur-sm"
+    >
+      <svg width="18" height="18" stroke="#333" strokeWidth="2" fill="none">
+        <path d="M12 4 L7 9 L12 14" />
+      </svg>
     </button>
-    <button className="border border-indigo-600 text-indigo-600 px-6 py-3 rounded-full hover:bg-indigo-50 transition">
-      Learn More
+
+    {/* NEXT */}
+    <button
+      onClick={nextSlide}
+      className="bg-white/70 hover:bg-white shadow-md p-2 rounded-full transition backdrop-blur-sm"
+    >
+      <svg width="18" height="18" stroke="#333" strokeWidth="2" fill="none">
+        <path d="M7 4 L12 9 L7 14" />
+      </svg>
     </button>
   </div>
+)}
 
-  {/* ✅ BACKGROUND IMAGE */}
-  <div className="absolute inset-0 -z-10">
-    <Image
-      src="/images/hero.webp"
-      alt="Hero background"
-      fill
-      className="object-cover opacity-40"
-      priority
-    />
-  </div>
 
-  {/* ✅ OPTIONAL OVERLAY for better text contrast */}
-  <div className="absolute inset-0 bg-gradient-to-b from-white/40 to-white/10 -z-10"></div>
-</section>
 
-  )
-}
+        <AnimatePresence>
+          <motion.div
+            key={slides[index].image}
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            transition={{ duration: 1 }}
+            className="absolute inset-0"
+          >
+            <Image
+              src={slides[index].image}
+              alt="Handicraft"
+              fill
+              className="object-cover"
+            />
+          </motion.div>
+        </AnimatePresence>
+      </div>
+
+      {/* RIGHT SECTION (Content) */}
+      <div className="w-full md:w-2/5 bg-gray-100 flex flex-col justify-center items-center p-8 sm:p-12 md:p-10">
+
+        <AnimatePresence mode="wait">
+          <motion.div
+            key={slides[index].title}
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: -20 }}
+            transition={{ duration: 0.7 }}
+            className="flex flex-col items-center text-center"
+          >
+            <h3 className="text-black text-4xl sm:text-5xl md:text-6xl font-extrabold mb-5 leading-tight">
+              {slides[index].title}
+            </h3>
+
+            <p className="text-gray-900 text-base sm:text-lg mb-6 leading-relaxed max-w-[300px]">
+              {slides[index].desc}
+            </p>
+
+            <Button variant="default" className="px-6 py-4 sm:px-8 sm:py-6 font-bold">
+              Shop Now
+            </Button>
+          </motion.div>
+        </AnimatePresence>
+      </div>
+
+    </div>
+  );
+};
 
 export default Hero;
