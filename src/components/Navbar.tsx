@@ -43,10 +43,13 @@ const Navbar: React.FC = () => {
   };
 
   return (
-    <nav className="fixed top-0 left-0 w-full bg-white border-b border-gray-300 z-50">
+<nav className="fixed top-0 left-0 w-full bg-white border-b border-gray-300 py-0.7 z-50">
+
+
 
       {/* Shopify-like centered container */}
-      <div className="max-w-[1400px] mx-auto px-4 md:px-8 lg:px-12 xl:px-16 py-4 flex items-center w-full">
+      <div className="w-full px-4 md:px-8 py-4 flex items-center">
+
 
         {/* LEFT — LOGO */}
         <Link href="/" className={`${monsieur.className} text-4xl text-indigo-700`}>
