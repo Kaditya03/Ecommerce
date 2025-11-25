@@ -165,9 +165,22 @@ const Navbar: React.FC = () => {
         </div>
 
         {/* LOGIN BUTTON */}
-        <button className="cursor-pointer px-8 py-2 bg-indigo-500 hover:bg-indigo-600 transition text-white rounded-full">
-          Login
-        </button>
+       <button className="cursor-pointer p-2 mt-2 rounded-full hover:bg-gray-100 transition">
+  <svg 
+    width="28" 
+    height="28" 
+    viewBox="0 0 24 24" 
+    fill="none"
+    stroke="#615fff"
+    strokeWidth="1.8"
+    strokeLinecap="round"
+    strokeLinejoin="round"
+  >
+    <circle cx="12" cy="8" r="4" />
+    <path d="M4 20c0-4 4-6 8-6s8 2 8 6" />
+  </svg>
+</button>
+
       </div>
 
       {/* ✅ Mobile Menu Button */}
@@ -198,9 +211,22 @@ const Navbar: React.FC = () => {
             <MobileDropdown label="Contact" open={contactOpen} onClick={() => toggleMenu("contact")} links={["Email", "Phone", "Map"]} />
             <MobileDropdown label="Services" open={servicesOpen} onClick={() => toggleMenu("services")} links={["Web Design", "App Development", "Consulting"]} />
 
-            <button className="cursor-pointer px-6 py-2 mt-2 bg-indigo-500 hover:bg-indigo-600 transition text-white rounded-full text-sm">
-              Login
-            </button>
+            <button className="cursor-pointer p-2 rounded-full hover:bg-gray-100 transition">
+  <svg 
+    width="24" 
+    height="24" 
+    viewBox="0 0 24 24" 
+    fill="none" 
+    stroke="#615fff" 
+    strokeWidth="1.8"
+    strokeLinecap="round"
+    strokeLinejoin="round"
+  >
+    <circle cx="12" cy="8" r="4" />
+    <path d="M4 20c0-4 4-6 8-6s8 2 8 6" />
+  </svg>
+</button>
+
           </motion.div>
         )}
       </AnimatePresence>
