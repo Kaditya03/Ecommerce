@@ -1,12 +1,12 @@
-import Category from "@/components/Category";
 import Hero from "@/components/Hero";
+import Banner from "@/components/Banner";
 import Image from "next/image";
 
 export default function Home() {
   return (
   <main>
     <Hero />
-    <Category/>
+    <Banner/>
   </main>
   );
 }
