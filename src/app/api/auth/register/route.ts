@@ -2,43 +2,46 @@ import { NextResponse } from "next/server";
 import connectDB from "@/lib/db";
 import User from "@/models/User";
 import bcrypt from "bcryptjs";
+import crypto from "crypto";
+import { sendVerificationEmail } from "@/lib/sendEmail";
 
-export async function POST(req:Request){
-    try{
-        await connectDB();
-        const {name,email , password}= await req.json();
+export async function POST(req: Request) {
+  try {
+    await connectDB();
+    const { name, email, password } = await req.json();
 
-        if(!name || !email || !password){
-            return NextResponse.json(
-                {message:"All fields are required"},
-                {status:400}
-            );
-        }
-        const existingUser= await User.findOne({email});
-        if(existingUser){
-            return NextResponse.json(
-
-                {message:"User already exists"},
-                {status:400}
-            );
-        }
-        const hashedPassword = await  bcrypt.hash(password,10);
-         await User.create({
-            name,
-            email,
-            password:hashedPassword,
-        });
-
-        return NextResponse.json(
-            {message:"User registered successfully"},
-            {status:201}
-        );
-    }catch(error){
-        console.log(error);
-        return NextResponse.json(
-            {message:"Registration Failed",error},
-            {status:500}
-        );
+    const existing = await User.findOne({ email });
+    if (existing) {
+      return NextResponse.json(
+        { message: "User already exists" },
+        { status: 400 }
+      );
     }
 
+    const hashedPassword = await bcrypt.hash(password, 10);
+
+    const token = crypto.randomBytes(32).toString("hex");
+
+    const user = await User.create({
+      name,
+      email: email.toLowerCase().trim(),
+      password: hashedPassword,
+      emailVerificationToken: token,
+      isEmailVerified: false,
+    });
+
+    const verifyLink = `${process.env.NEXT_PUBLIC_APP_URL}/verify-email/${token}`;
+
+    await sendVerificationEmail(user.email, verifyLink);
+
+    return NextResponse.json({
+      message:
+        "Registration successful. Please check your email to verify your account.",
+    });
+  } catch (error) {
+    return NextResponse.json(
+      { message: "Registration failed" },
+      { status: 500 }
+    );
+  }
 }

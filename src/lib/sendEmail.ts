@@ -1,15 +1,13 @@
 import nodemailer from "nodemailer";
 
+/* ================= RESET PASSWORD EMAIL ================= */
+
 export async function sendResetEmail(
   to: string,
   resetLink: string
 ) {
   if (!to) {
     throw new Error("Recipient email missing");
-  }
-
-  if (!process.env.EMAIL_USER || !process.env.EMAIL_PASS) {
-    throw new Error("Email credentials missing");
   }
 
   const transporter = nodemailer.createTransport({
@@ -21,10 +19,9 @@ export async function sendResetEmail(
   });
 
   await transporter.sendMail({
-    from: process.env.EMAIL_USER, //  MUST be plain email
-    to,                             //  user.email
+    from: process.env.EMAIL_USER,
+    to,
     subject: "Reset your password",
-    text: `Reset your password using this link: ${resetLink}`,
     html: `
       <p>You requested a password reset.</p>
       <p>
@@ -33,6 +30,41 @@ export async function sendResetEmail(
         </a>
       </p>
       <p>This link expires in 15 minutes.</p>
+    `,
+  });
+}
+
+/* ================= EMAIL VERIFICATION ================= */
+
+export async function sendVerificationEmail(
+  to: string,
+  verifyLink: string
+) {
+  if (!to) {
+    throw new Error("Recipient email missing");
+  }
+
+  const transporter = nodemailer.createTransport({
+    service: "gmail",
+    auth: {
+      user: process.env.EMAIL_USER,
+      pass: process.env.EMAIL_PASS,
+    },
+  });
+
+  await transporter.sendMail({
+    from: process.env.EMAIL_USER,
+    to,
+    subject: "Verify your email address",
+    html: `
+      <p>Welcome to Aurindel!</p>
+      <p>Please verify your email to activate your account:</p>
+      <p>
+        <a href="${verifyLink}">
+          Verify Email
+        </a>
+      </p>
+      <p>If you did not create this account, you can ignore this email.</p>
     `,
   });
 }

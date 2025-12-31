@@ -38,6 +38,16 @@ const UserSchema = new Schema(
       type: Date,
       default: null,
     },
+    isEmailVerified: {
+  type: Boolean,
+  default: false,
+},
+
+emailVerificationToken: {
+  type: String,
+  default: null,
+},
+
   },
   { timestamps: true }
 );
