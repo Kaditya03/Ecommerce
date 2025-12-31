@@ -49,6 +49,7 @@ export async function POST(req: Request) {
         name: user.name,
         email: user.email,
         role: user.role,
+        photo:user.photo,
       },
     });
   } catch (error) {

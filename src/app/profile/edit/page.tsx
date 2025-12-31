@@ -12,25 +12,56 @@ export default function EditProfile() {
   const [tempPhoto, setTempPhoto] = useState<string | null>(photo);
   const [saving, setSaving] = useState(false);
 
-  const handlePhotoChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+  /* ================= UPLOAD TO CLOUDINARY ================= */
+
+  const handlePhotoChange = async (
+    e: React.ChangeEvent<HTMLInputElement>
+  ) => {
     const file = e.target.files?.[0];
     if (!file) return;
 
-    const previewUrl = URL.createObjectURL(file);
-    setTempPhoto(previewUrl);
+    setSaving(true);
+
+    const formData = new FormData();
+    formData.append("file", file);
+
+    try {
+      const token = localStorage.getItem("token");
+
+      const res = await fetch("/api/upload/profile-photo", {
+        method: "POST",
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+        body: formData,
+      });
+
+      const data = await res.json();
+
+      if (!res.ok) {
+        alert(data.message || "Upload failed");
+        return;
+      }
+
+      // ✅ Cloudinary URL
+      setTempPhoto(data.url);
+    } catch (error) {
+      alert("Image upload failed");
+    } finally {
+      setSaving(false);
+    }
   };
+
+  /* ================= SAVE & GO BACK ================= */
 
   const handleSave = () => {
     setSaving(true);
 
-    // simulate save delay (later replace with API call)
     setTimeout(() => {
-      setPhoto(tempPhoto);
+      setPhoto(tempPhoto); // update global profile state
       setSaving(false);
-
-      // 🔙 go back to previous page
-      router.back();
-    }, 600);
+      router.back(); // 🔙 go back
+    }, 400);
   };
 
   const hasChanges = tempPhoto !== photo;

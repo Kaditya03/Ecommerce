@@ -3,14 +3,18 @@
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { useAuth } from "@/context/AuthContext";
-import Image from "next/image";
+import { useProfile } from "@/context/ProfileContext";
+import Link from "next/link";
 
 export default function Login() {
   const router = useRouter();
   const { login } = useAuth();
+  const { setPhoto } = useProfile();
 
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [rememberMe, setRememberMe] = useState(false);
+
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
 
@@ -35,11 +39,20 @@ export default function Login() {
         return;
       }
 
-      // ✅ Save token
-      localStorage.setItem("token", data.token);
+      // ✅ Store token (remember me respected)
+      if (rememberMe) {
+        localStorage.setItem("token", data.token);
+      } else {
+        sessionStorage.setItem("token", data.token);
+      }
 
-      // ✅ Update Auth Context (CRITICAL)
+      // ✅ Update auth state
       login();
+
+      // ✅ Load profile image (Cloudinary URL from DB)
+      if (data.user?.photo) {
+        setPhoto(data.user.photo);
+      }
 
       // ✅ Redirect
       router.push("/");
@@ -72,6 +85,7 @@ export default function Login() {
             Welcome back! Please sign in to continue
           </p>
 
+          {/* GOOGLE BUTTON (UI KEPT) */}
           <button
             type="button"
             className="w-full mt-8 bg-gray-500/10 flex items-center justify-center h-12 rounded-full"
@@ -114,19 +128,27 @@ export default function Login() {
             />
           </div>
 
+          {/* REMEMBER ME + FORGOT */}
           <div className="w-full flex items-center justify-between mt-8 text-gray-500/80">
             <div className="flex items-center gap-2">
-              <input className="h-5" type="checkbox" id="checkbox" />
-              <label className="text-sm" htmlFor="checkbox">
+              <input
+                className="h-5"
+                type="checkbox"
+                id="remember"
+                checked={rememberMe}
+                onChange={(e) => setRememberMe(e.target.checked)}
+              />
+              <label className="text-sm" htmlFor="remember">
                 Remember me
               </label>
             </div>
-            <a className="text-sm underline" href="#">
-              Forgot password?
-            </a>
+           <Link href="/forgot-password" className="text-sm underline">
+  Forgot password?
+</Link>
+
           </div>
 
-          {/* ERROR */}
+          {/* ERROR MESSAGE */}
           {error && (
             <p className="text-red-500 text-sm mt-4">{error}</p>
           )}
