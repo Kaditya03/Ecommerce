@@ -14,6 +14,7 @@ import { useAuth } from "@/context/AuthContext";
 import { useCart } from "@/context/CartContext";
 import { useProfile } from "@/context/ProfileContext";
 
+
 /* ================= FONTS (UNCHANGED) ================= */
 
 const monsieur = Monsieur_La_Doulaise({
@@ -52,6 +53,8 @@ export default function Navbar() {
   const { isLoggedIn } = useAuth();
   const { cartCount } = useCart();
   const { photo } = useProfile();
+
+  
 
   /* Close profile dropdown on outside click */
   React.useEffect(() => {
@@ -132,14 +135,17 @@ export default function Navbar() {
           <div className="hidden sm:flex items-center gap-2 ml-auto">
             <Icon onClick={() => setShowSearch(true)}>🔍</Icon>
 
-            <div className="relative">
-              <Icon onClick={() => router.push("/cart")}>🛒</Icon>
-              {cartCount > 0 && (
-                <span className="absolute -top-1 -right-1 text-xs bg-indigo-600 text-white rounded-full w-5 h-5 flex items-center justify-center">
-                  {cartCount}
-                </span>
-              )}
-            </div>
+          <div className="relative">
+  <button onClick={() => router.push("/cart")}>
+    🛒
+  </button>
+
+  {cartCount > 0 && (
+    <span className="absolute -top-1 -right-1 bg-indigo-600 text-white text-xs w-5 h-5 rounded-full flex items-center justify-center">
+      {cartCount}
+    </span>
+  )}
+</div>
 
             <Icon>❤️</Icon>
 

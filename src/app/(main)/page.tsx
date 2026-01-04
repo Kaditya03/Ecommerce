@@ -1,6 +1,6 @@
 import Hero from "@/components/Hero";
 import Banner from "@/components/Banner";
-import Category from "@/components/Category";
+import Categories from "@/components/Categories";
 import BestSellers from "@/components/BestSellers";
 import NewArrivals from "@/components/NewArrivals";
 import Bulking from "@/components/Bulking";
@@ -10,7 +10,7 @@ export default function MainPage() {
     <main>
       <Hero />
       <Banner />
-      <Category />
+      <Categories />
       <BestSellers />
       <NewArrivals />
       <Bulking />
