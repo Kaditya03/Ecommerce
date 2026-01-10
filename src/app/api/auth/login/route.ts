@@ -18,6 +18,8 @@ export async function POST(req: Request) {
       );
     }
 
+
+
     // ✅ FIND USER BY EMAIL
     const user = await User.findOne({ email });
     if (!user) {
@@ -44,7 +46,7 @@ export async function POST(req: Request) {
     }
 
     const token = jwt.sign(
-      { id: user._id, role: user.role },
+      { id: user._id, role: "user" },
       process.env.JWT_SECRET!,
       { expiresIn: "7d" }
     );

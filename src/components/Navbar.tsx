@@ -3,40 +3,38 @@
 import React from "react";
 import Link from "next/link";
 import { motion, AnimatePresence } from "framer-motion";
-import { useMenu } from "@/context/MenuContext";
+import { useRouter } from "next/navigation";
 import {
   Monsieur_La_Doulaise,
   Eagle_Lake,
   Poppins,
 } from "next/font/google";
-import { useRouter } from "next/navigation";
+
+import { useMenu } from "@/context/MenuContext";
 import { useAuth } from "@/context/AuthContext";
 import { useCart } from "@/context/CartContext";
 import { useProfile } from "@/context/ProfileContext";
+import { useWishlist } from "@/context/WishlistContext";
 
+/* ================= FONTS ================= */
 
-/* ================= FONTS (UNCHANGED) ================= */
-
-const monsieur = Monsieur_La_Doulaise({
-  subsets: ["latin"],
-  weight: "400",
-});
-
-const eagle = Eagle_Lake({
-  subsets: ["latin"],
-  weight: "400",
-});
-
-const poppins = Poppins({
-  subsets: ["latin"],
-  weight: ["300", "400"],
-});
+const monsieur = Monsieur_La_Doulaise({ subsets: ["latin"], weight: "400" });
+const eagle = Eagle_Lake({ subsets: ["latin"], weight: "400" });
+const poppins = Poppins({ subsets: ["latin"], weight: ["300", "400"] });
 
 /* ================= NAVBAR ================= */
 
 export default function Navbar() {
+  const router = useRouter();
+
   const { menuOpen, setMenuOpen } = useMenu();
+  const { isLoggedIn } = useAuth();
+  const { cartCount } = useCart();
+  const { wishlist } = useWishlist();
+  const { photo } = useProfile();
+
   const [showSearch, setShowSearch] = React.useState(false);
+  const [profileOpen, setProfileOpen] = React.useState(false);
 
   const [homeOpen, setHomeOpen] = React.useState(false);
   const [aboutOpen, setAboutOpen] = React.useState(false);
@@ -44,27 +42,17 @@ export default function Navbar() {
   const [contactOpen, setContactOpen] = React.useState(false);
   const [servicesOpen, setServicesOpen] = React.useState(false);
 
-  const [profileOpen, setProfileOpen] = React.useState(false);
-
   const desktopProfileRef = React.useRef<HTMLDivElement | null>(null);
   const mobileProfileRef = React.useRef<HTMLDivElement | null>(null);
 
-  const router = useRouter();
-  const { isLoggedIn } = useAuth();
-  const { cartCount } = useCart();
-  const { photo } = useProfile();
-
-  
-
   /* Close profile dropdown on outside click */
   React.useEffect(() => {
-    function handleClickOutside(event: MouseEvent) {
+    function handleClickOutside(e: MouseEvent) {
       if (
-        desktopProfileRef.current?.contains(event.target as Node) ||
-        mobileProfileRef.current?.contains(event.target as Node)
-      ) {
+        desktopProfileRef.current?.contains(e.target as Node) ||
+        mobileProfileRef.current?.contains(e.target as Node)
+      )
         return;
-      }
       setProfileOpen(false);
     }
     document.addEventListener("mousedown", handleClickOutside);
@@ -72,9 +60,7 @@ export default function Navbar() {
       document.removeEventListener("mousedown", handleClickOutside);
   }, []);
 
-  const toggleMobileMenu = (
-    menu: "home" | "about" | "collections" | "contact" | "services"
-  ) => {
+  const toggleMobileMenu = (menu: string) => {
     setHomeOpen(menu === "home" ? !homeOpen : false);
     setAboutOpen(menu === "about" ? !aboutOpen : false);
     setCollectionsOpen(menu === "collections" ? !collectionsOpen : false);
@@ -115,8 +101,14 @@ export default function Navbar() {
           <div
             className={`hidden sm:flex gap-10 absolute left-1/2 -translate-x-1/2 ${eagle.className}`}
           >
-            <DesktopDropdown label="Home" items={["Overview", "Updates", "News"]} />
-            <DesktopDropdown label="About" items={["Our Team", "Mission", "Vision"]} />
+            <DesktopDropdown
+              label="Home"
+              items={["Overview", "Updates", "News"]}
+            />
+            <DesktopDropdown
+              label="About"
+              items={["Our Team", "Mission", "Vision"]}
+            />
             <DesktopDropdown
               label="Collections"
               items={[
@@ -127,30 +119,34 @@ export default function Navbar() {
                 "Traditional Textiles",
               ]}
             />
-            <DesktopDropdown label="Contact" items={["Email", "Phone", "Map"]} />
-            <DesktopDropdown label="Services" items={["Web Design", "App Development", "Consulting"]} />
+            <DesktopDropdown
+              label="Contact"
+              items={["Email", "Phone", "Map"]}
+            />
+            <DesktopDropdown
+              label="Services"
+              items={["Web Design", "App Development", "Consulting"]}
+            />
           </div>
 
           {/* DESKTOP ICONS */}
-          <div className="hidden sm:flex items-center gap-2 ml-auto">
+          <div className="hidden sm:flex items-center gap-3 ml-auto">
             <Icon onClick={() => setShowSearch(true)}>🔍</Icon>
 
-          <div className="relative">
-  <button onClick={() => router.push("/cart")}>
-    🛒
-  </button>
+            <BadgeIcon
+              icon="🛒"
+              count={cartCount}
+              onClick={() => router.push("/cart")}
+            />
 
-  {cartCount > 0 && (
-    <span className="absolute -top-1 -right-1 bg-indigo-600 text-white text-xs w-5 h-5 rounded-full flex items-center justify-center">
-      {cartCount}
-    </span>
-  )}
-</div>
+            <BadgeIcon
+              icon="❤️"
+              count={wishlist.length}
+              red
+              onClick={() => router.push("/wishlist")}
+            />
 
-            <Icon>❤️</Icon>
-
-            {/* PROFILE */}
-            <div className="relative" ref={desktopProfileRef}>
+            <div ref={desktopProfileRef} className="relative">
               <ProfileAvatar
                 photo={photo}
                 onClick={() => setProfileOpen((p) => !p)}
@@ -185,11 +181,23 @@ export default function Navbar() {
               exit={{ opacity: 0, y: -10 }}
               className={`sm:hidden bg-white p-4 shadow-lg ${poppins.className}`}
             >
-              <div className="flex justify-center gap-3 border-b pb-3 mb-3">
+              <div className="flex justify-center gap-4 border-b pb-3 mb-3">
                 <Icon onClick={() => setShowSearch(true)}>🔍</Icon>
-                <Icon onClick={() => router.push("/cart")}>🛒</Icon>
 
-                <div className="relative" ref={mobileProfileRef}>
+                <BadgeIcon
+                  icon="🛒"
+                  count={cartCount}
+                  onClick={() => router.push("/cart")}
+                />
+
+                <BadgeIcon
+                  icon="❤️"
+                  count={wishlist.length}
+                  red
+                  onClick={() => router.push("/wishlist")}
+                />
+
+                <div ref={mobileProfileRef} className="relative">
                   <ProfileAvatar
                     photo={photo}
                     onClick={() => setProfileOpen((p) => !p)}
@@ -202,38 +210,134 @@ export default function Navbar() {
                 </div>
               </div>
 
-              <MobileDropdown label="Home" items={["Overview", "Updates", "News"]} open={homeOpen} onClick={() => toggleMobileMenu("home")} />
-              <MobileDropdown label="About" items={["Our Team", "Mission", "Vision"]} open={aboutOpen} onClick={() => toggleMobileMenu("about")} />
-              <MobileDropdown label="Collections" items={["Home Decor","Art & Paintings","Brass & Metal Art","Wooden Handicrafts","Traditional Textiles"]} open={collectionsOpen} onClick={() => toggleMobileMenu("collections")} />
-              <MobileDropdown label="Contact" items={["Email", "Phone", "Map"]} open={contactOpen} onClick={() => toggleMobileMenu("contact")} />
-              <MobileDropdown label="Services" items={["Web Design", "App Development", "Consulting"]} open={servicesOpen} onClick={() => toggleMobileMenu("services")} />
+              <MobileDropdown
+                label="Home"
+                items={["Overview", "Updates", "News"]}
+                open={homeOpen}
+                onClick={() => toggleMobileMenu("home")}
+              />
+              <MobileDropdown
+                label="About"
+                items={["Our Team", "Mission", "Vision"]}
+                open={aboutOpen}
+                onClick={() => toggleMobileMenu("about")}
+              />
+              <MobileDropdown
+                label="Collections"
+                items={[
+                  "Home Decor",
+                  "Art & Paintings",
+                  "Brass & Metal Art",
+                  "Wooden Handicrafts",
+                  "Traditional Textiles",
+                ]}
+                open={collectionsOpen}
+                onClick={() => toggleMobileMenu("collections")}
+              />
+              <MobileDropdown
+                label="Contact"
+                items={["Email", "Phone", "Map"]}
+                open={contactOpen}
+                onClick={() => toggleMobileMenu("contact")}
+              />
+              <MobileDropdown
+                label="Services"
+                items={["Web Design", "App Development", "Consulting"]}
+                open={servicesOpen}
+                onClick={() => toggleMobileMenu("services")}
+              />
             </motion.div>
           )}
         </AnimatePresence>
       </nav>
+
+      {/* SEARCH MODAL */}
+      <SearchModal
+        open={showSearch}
+        onClose={() => setShowSearch(false)}
+      />
     </>
   );
 }
 
-/* ================= PROFILE AVATAR ================= */
+/* ================= SEARCH MODAL ================= */
+
+function SearchModal({ open, onClose }: any) {
+  const router = useRouter();
+  const [query, setQuery] = React.useState("");
+
+  React.useEffect(() => {
+    function esc(e: KeyboardEvent) {
+      if (e.key === "Escape") onClose();
+    }
+    document.addEventListener("keydown", esc);
+    return () => document.removeEventListener("keydown", esc);
+  }, [onClose]);
+
+  if (!open) return null;
+
+  return (
+    <div className="fixed top-24 left-1/2 -translate-x-1/2 w-[90%] sm:w-[420px] bg-white border rounded-lg shadow-xl z-50 p-4">
+      <form
+        onSubmit={(e) => {
+          e.preventDefault();
+          if (!query.trim()) return;
+          router.push(`/search?q=${encodeURIComponent(query)}`);
+          onClose();
+        }}
+      >
+        <input
+          autoFocus
+          value={query}
+          onChange={(e) => setQuery(e.target.value)}
+          placeholder="Search products..."
+          className="w-full border px-4 py-2 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500"
+        />
+      </form>
+    </div>
+  );
+}
+
+/* ================= COMMON COMPONENTS ================= */
+
+function Icon({ children, onClick }: any) {
+  return (
+    <button
+      onClick={onClick}
+      className="p-2 text-xl hover:bg-gray-100 rounded-full transition"
+    >
+      {children}
+    </button>
+  );
+}
+
+function BadgeIcon({ icon, count, onClick, red }: any) {
+  return (
+    <div className="relative">
+      <Icon onClick={onClick}>{icon}</Icon>
+      {count > 0 && (
+        <span
+          className={`absolute -top-1 -right-1 text-white text-xs w-5 h-5 rounded-full flex items-center justify-center ${
+            red ? "bg-red-500" : "bg-indigo-600"
+          }`}
+        >
+          {count}
+        </span>
+      )}
+    </div>
+  );
+}
 
 function ProfileAvatar({ photo, onClick }: any) {
   return (
     <button
       onClick={onClick}
-      className="w-9 h-9 rounded-full overflow-hidden hover:ring-2 hover:ring-indigo-400 transition-all duration-300"
+      className="w-9 h-9 rounded-full overflow-hidden hover:ring-2 hover:ring-indigo-400"
     >
       {photo ? (
-        <motion.img
-          src={photo}
-          alt="profile"
-          initial={{ scale: 0.9, opacity: 0 }}
-          animate={{ scale: 1, opacity: 1 }}
-          transition={{ duration: 0.3 }}
-          className="w-full h-full object-cover"
-        />
+        <img src={photo} className="w-full h-full object-cover" />
       ) : (
-        <div className="w-full h-full flex items-center justify-center text-lg">
+        <div className="w-full h-full flex items-center justify-center">
           👤
         </div>
       )}
@@ -241,65 +345,78 @@ function ProfileAvatar({ photo, onClick }: any) {
   );
 }
 
-/* ================= PROFILE DROPDOWN ================= */
-
 function ProfileDropdown({ open, isLoggedIn, router }: any) {
   const { logout } = useAuth();
+  if (!open) return null;
 
   return (
-    <AnimatePresence>
-      {open && (
-        <motion.div
-          initial={{ opacity: 0, y: -8 }}
-          animate={{ opacity: 1, y: 0 }}
-          exit={{ opacity: 0, y: -8 }}
-          className={`absolute right-0 mt-3 w-52 bg-white border rounded-md shadow-lg z-50 ${poppins.className}`}
-        >
-          {!isLoggedIn ? (
-            <div className="flex flex-col">
-              <button onClick={() => router.push("/login")} className="px-4 py-2 text-left hover:bg-indigo-50">Login</button>
-              <button onClick={() => router.push("/register")} className="px-4 py-2 text-left hover:bg-indigo-50">Create Account</button>
-            </div>
-          ) : (
-            <div className="flex flex-col">
-              <button onClick={() => router.push("/profile")} className="px-4 py-2 text-left hover:bg-indigo-50">My Profile</button>
-              <button onClick={() => router.push("/profile/edit")} className="px-4 py-2 text-left hover:bg-indigo-50">Edit Profile</button>
-              <button onClick={() => router.push("/orders")} className="px-4 py-2 text-left hover:bg-indigo-50">My Orders</button>
-              <button onClick={logout} className="px-4 py-2 text-left text-red-600 hover:bg-red-50">Logout</button>
-            </div>
-          )}
-        </motion.div>
+    <div
+      className={`absolute right-0 mt-3 w-52 bg-white border rounded-md shadow-lg z-50 ${poppins.className}`}
+    >
+      {!isLoggedIn ? (
+        <>
+          <button
+            onClick={() => router.push("/login")}
+            className="block w-full px-4 py-2 text-left hover:bg-indigo-50"
+          >
+            Login
+          </button>
+          <button
+            onClick={() => router.push("/register")}
+            className="block w-full px-4 py-2 text-left hover:bg-indigo-50"
+          >
+            Create Account
+          </button>
+        </>
+      ) : (
+        <>
+          <button
+            onClick={() => router.push("/profile")}
+            className="block w-full px-4 py-2 text-left hover:bg-indigo-50"
+          >
+            My Profile
+          </button>
+          <button
+            onClick={() => router.push("/orders")}
+            className="block w-full px-4 py-2 text-left hover:bg-indigo-50"
+          >
+            My Orders
+          </button>
+          <button
+            onClick={logout}
+            className="block w-full px-4 py-2 text-left text-red-600 hover:bg-red-50"
+          >
+            Logout
+          </button>
+        </>
       )}
-    </AnimatePresence>
-  );
-}
-
-/* ================= COMMON ================= */
-
-function Icon({ children, onClick }: any) {
-  return (
-    <button onClick={onClick} className="p-2 text-xl hover:bg-gray-100 rounded-full transition">
-      {children}
-    </button>
+    </div>
   );
 }
 
 function DesktopDropdown({ label, items }: any) {
   const [open, setOpen] = React.useState(false);
   return (
-    <div onMouseEnter={() => setOpen(true)} onMouseLeave={() => setOpen(false)} className="relative">
-      <span className="cursor-pointer text-indigo-600 hover:text-indigo-800">{label}</span>
-      <AnimatePresence>
-        {open && (
-          <motion.div className={`absolute left-0 mt-2 bg-white border rounded-md shadow-md w-48 ${poppins.className}`}>
-            {items.map((item: string) => (
-              <div key={item} className="px-4 py-2 text-sm hover:bg-indigo-50 cursor-pointer">
-                {item}
-              </div>
-            ))}
-          </motion.div>
-        )}
-      </AnimatePresence>
+    <div
+      onMouseEnter={() => setOpen(true)}
+      onMouseLeave={() => setOpen(false)}
+      className="relative"
+    >
+      <span className="cursor-pointer text-indigo-600">{label}</span>
+      {open && (
+        <div
+          className={`absolute mt-2 w-48 bg-white border rounded-md shadow-md ${poppins.className}`}
+        >
+          {items.map((item: string) => (
+            <div
+              key={item}
+              className="px-4 py-2 hover:bg-indigo-50 cursor-pointer"
+            >
+              {item}
+            </div>
+          ))}
+        </div>
+      )}
     </div>
   );
 }
@@ -307,22 +424,26 @@ function DesktopDropdown({ label, items }: any) {
 function MobileDropdown({ label, items, open, onClick }: any) {
   return (
     <div className="border-b py-2">
-      <button onClick={onClick} className="w-full flex justify-between items-center text-indigo-600 hover:bg-indigo-50 px-2 py-2 rounded-md">
+      <button
+        onClick={onClick}
+        className="w-full flex justify-between px-2 py-2 text-indigo-600"
+      >
         {label}
-        <span className={`transition-transform ${open ? "rotate-180" : ""}`}>▼</span>
+        <span className={open ? "rotate-180" : ""}>▼</span>
       </button>
-
-      <AnimatePresence>
-        {open && (
-          <motion.div className="pl-4 mt-2 flex flex-col gap-1">
-            {items.map((item: string) => (
-              <Link key={item} href="#" className="text-sm hover:bg-indigo-50 px-2 py-1 rounded">
-                {item}
-              </Link>
-            ))}
-          </motion.div>
-        )}
-      </AnimatePresence>
+      {open && (
+        <div className="pl-4">
+          {items.map((item: string) => (
+            <Link
+              key={item}
+              href="#"
+              className="block py-1 text-sm hover:bg-indigo-50"
+            >
+              {item}
+            </Link>
+          ))}
+        </div>
+      )}
     </div>
   );
 }

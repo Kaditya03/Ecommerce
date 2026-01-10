@@ -5,6 +5,7 @@ import { MenuProvider } from "@/context/MenuContext";
 import { AuthProvider } from "@/context/AuthContext";
 import { CartProvider } from "@/context/CartContext";
 import { ProfileProvider } from "@/context/ProfileContext";
+import { WishlistProvider } from "@/context/WishlistContext";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -38,6 +39,8 @@ export default function RootLayout({
         {/* ✅ NOW MenuProvider ACTUALLY WRAPS EVERYTHING */}
         <AuthProvider>
           <CartProvider>
+            <WishlistProvider>
+
             <ProfileProvider>
 
 
@@ -46,6 +49,7 @@ export default function RootLayout({
           {children}
         </MenuProvider>
             </ProfileProvider>
+            </WishlistProvider>
           </CartProvider>
         </AuthProvider>
       </body>

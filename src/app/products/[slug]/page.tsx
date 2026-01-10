@@ -1,31 +1,40 @@
 import { products } from "@/data/products";
-import { notFound } from "next/navigation";
 import ProductClient from "@/components/ProductClient";
+import { notFound } from "next/navigation";
 
-/* ================= SEO ================= */
 export async function generateMetadata({
   params,
 }: {
-  params: Promise<{ slug: string }>;
+  params: { slug: string };
 }) {
-  const { slug } = await params;
-  const product = products.find((p) => p.slug === slug);
+  const product = products.find(
+    (p) => p.slug === params.slug
+  );
+
   if (!product) return {};
 
   return {
     title: `${product.name} | Aurindel Handicrafts`,
     description: product.description,
+    openGraph: {
+      title: product.name,
+      description: product.description,
+      images: product.images,
+    },
   };
 }
 
-/* ================= PAGE ================= */
 export default async function ProductPage({
   params,
 }: {
   params: Promise<{ slug: string }>;
 }) {
+  // ✅ UNWRAP PARAMS
   const { slug } = await params;
-  const product = products.find((p) => p.slug === slug);
+
+  const product = products.find(
+    (p) => p.slug === slug
+  );
 
   if (!product) notFound();
 
