@@ -2,16 +2,13 @@ import mongoose from "mongoose";
 
 const ProductSchema = new mongoose.Schema(
   {
-    name: { type: String, required: true },
-    description: String,
+    name: String,
     price: Number,
+    description: String,
+    images: [String],
     category: String,
-
-    // ✅ Cloudinary image URLs
-    images: {
-      type: [String],
-      required: true,
-    },
+    sections: [String], // best-sellers, new-arrivals, bulking
+    minOrderQty: { type: Number, default: 50 },
   },
   { timestamps: true }
 );

@@ -2,24 +2,11 @@ import { NextResponse } from "next/server";
 import connectDB from "@/lib/db";
 import Product from "@/models/Product";
 
-export async function POST(req: Request) {
+export async function GET() {
   await connectDB();
 
-  const { name, price, category, images } = await req.json();
+  const products = await Product.find()
+    .sort({ createdAt: -1 });
 
-  if (!images || !images.length) {
-    return NextResponse.json(
-      { message: "Images required" },
-      { status: 400 }
-    );
-  }
-
-  const product = await Product.create({
-    name,
-    price,
-    category,
-    images,
-  });
-
-  return NextResponse.json(product);
+  return NextResponse.json(products);
 }
