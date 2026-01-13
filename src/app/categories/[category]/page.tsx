@@ -1,11 +1,14 @@
-import CategoryClient from "./CategoryClient";
+import { notFound } from "next/navigation";
+import CategoryLayout from "@/components/category/CategoryLayout";
 
-type Props = {
+interface PageProps {
   params: Promise<{ category: string }>;
-};
+}
 
-export default async function CategoryPage({ params }: Props) {
+export default async function CategoryPage({ params }: PageProps) {
   const { category } = await params;
+
+  if (!category) notFound();
 
   const res = await fetch(
     `${process.env.NEXT_PUBLIC_APP_URL}/api/products?category=${category}`,
@@ -15,7 +18,7 @@ export default async function CategoryPage({ params }: Props) {
   const products = await res.json();
 
   return (
-    <CategoryClient
+    <CategoryLayout
       category={category}
       products={products}
     />

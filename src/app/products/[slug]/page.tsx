@@ -6,8 +6,10 @@ export async function generateMetadata({
 }: {
   params: { slug: string };
 }) {
+  const { slug } = params;
+
   const res = await fetch(
-    `${process.env.NEXT_PUBLIC_APP_URL}/api/products/slug/${params.slug}`,
+    `${process.env.NEXT_PUBLIC_APP_URL}/api/products/slug/${slug}`,
     { cache: "no-store" }
   );
 
@@ -24,13 +26,16 @@ export async function generateMetadata({
   };
 }
 
+
 export default async function ProductPage({
   params,
 }: {
   params: { slug: string };
 }) {
+  const { slug } = params;
+
   const res = await fetch(
-    `${process.env.NEXT_PUBLIC_APP_URL}/api/products/slug/${params.slug}`,
+    `${process.env.NEXT_PUBLIC_APP_URL}/api/products/slug/${slug}`,
     { cache: "no-store" }
   );
 

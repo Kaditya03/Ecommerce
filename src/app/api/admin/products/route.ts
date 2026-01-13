@@ -2,8 +2,8 @@ import { NextResponse } from "next/server";
 import connectDB from "@/lib/db";
 import Product from "@/models/Product";
 
-// helper to generate slug
-const slugify = (text: string) =>
+// 🔥 Custom slug function
+const slugifyText = (text: string) =>
   text
     .toLowerCase()
     .trim()
@@ -23,12 +23,10 @@ export async function POST(req: Request) {
       );
     }
 
-    // 🔥 Generate base slug
-    let baseSlug = slugify(body.name);
+    let baseSlug = slugifyText(body.name);
     let slug = baseSlug;
     let count = 1;
 
-    // 🔁 Ensure slug uniqueness
     while (await Product.findOne({ slug })) {
       slug = `${baseSlug}-${count++}`;
     }
@@ -45,9 +43,8 @@ export async function POST(req: Request) {
     });
 
     return NextResponse.json(product, { status: 201 });
-  } catch (error: any) {
+  } catch (error) {
     console.error("PRODUCT SAVE ERROR:", error);
-
     return NextResponse.json(
       { message: "Failed to save product" },
       { status: 500 }

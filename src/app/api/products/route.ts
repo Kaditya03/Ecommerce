@@ -8,10 +8,13 @@ export async function GET(req: Request) {
   const { searchParams } = new URL(req.url);
   const category = searchParams.get("category");
 
-  const filter: any = {};
-  if (category) filter.category = category;
+  const query: any = {};
 
-  const products = await Product.find(filter);
+  if (category) {
+    query.category = category;
+  }
+
+  const products = await Product.find(query).sort({ createdAt: -1 });
 
   return NextResponse.json(products);
 }

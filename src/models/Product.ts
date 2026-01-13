@@ -8,11 +8,12 @@ const ProductSchema = new mongoose.Schema(
       trim: true,
     },
 
-    slug: {
-      type: String,
-      unique: true,
-      index: true,
-    },
+   slug: {
+  type: String,
+  required: true,
+  unique: true,
+  index: true,
+},
 
     price: {
       type: Number,

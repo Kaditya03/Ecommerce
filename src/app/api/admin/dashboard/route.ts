@@ -2,47 +2,31 @@ import { NextResponse } from "next/server";
 import connectDB from "@/lib/db";
 import Product from "@/models/Product";
 import Order from "@/models/Order";
-import jwt from "jsonwebtoken";
 
 /* ================= ADMIN DASHBOARD DATA ================= */
 
-export async function GET(req: Request) {
+export async function GET() {
   try {
     await connectDB();
 
-    /* ---------- AUTH ---------- */
-    const auth = req.headers.get("authorization");
-    if (!auth) {
-      return NextResponse.json(
-        { message: "Unauthorized" },
-        { status: 401 }
-      );
-    }
-
-    const token = auth.replace("Bearer ", "");
-    const decoded: any = jwt.verify(
-      token,
-      process.env.JWT_SECRET!
-    );
-
-    if (decoded.role !== "admin") {
-      return NextResponse.json(
-        { message: "Forbidden" },
-        { status: 403 }
-      );
-    }
-
-    /* ---------- DATA ---------- */
     const totalProducts = await Product.countDocuments();
     const totalOrders = await Order.countDocuments();
-    const pendingOrders = await Order.countDocuments({
-      status: "pending",
-    });
+    const pendingOrders = await Order.countDocuments({ status: "pending" });
+
+    // (Optional) revenue example
+    const revenueAgg = await Order.aggregate([
+      { $match: { status: "completed" } },
+      { $group: { _id: null, total: { $sum: "$totalAmount" } } },
+    ]);
+
+    const revenue = revenueAgg[0]?.total || 0;
 
     return NextResponse.json({
-      totalProducts,
-      totalOrders,
+      products: totalProducts,
+      orders: totalOrders,
       pendingOrders,
+      revenue,
+      chart: [], // we’ll plug real charts next
     });
   } catch (error) {
     console.error("ADMIN DASHBOARD ERROR:", error);

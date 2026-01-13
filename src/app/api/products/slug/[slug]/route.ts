@@ -8,16 +8,12 @@ export async function GET(
 ) {
   await connectDB();
 
-  const product = await Product.findOne({
-    slug: params.slug,
-  });
+  const product = await Product.findOne({ slug: params.slug });
 
   if (!product) {
-    return NextResponse.json(
-      { message: "Not found" },
-      { status: 404 }
-    );
+    return NextResponse.json({ message: "Not found" }, { status: 404 });
   }
 
   return NextResponse.json(product);
 }
+

@@ -1,143 +1,89 @@
 "use client";
 
-import { motion } from "framer-motion";
+import FilterSection from "./FilterSection";
+import { Slider } from "@/components/ui/slider";
 
 export default function DesktopFilters({
   price,
   setPrice,
-  size,
-  setSize,
-}: {
-  price: number;
-  setPrice: (v: number) => void;
-  size: string;
-  setSize: (v: string) => void;
-}) {
+  sections,
+  setSections,
+  sort,
+  setSort,
+}: any) {
+  const toggleSection = (value: string) => {
+    setSections((prev: string[]) =>
+      prev.includes(value)
+        ? prev.filter((s) => s !== value)
+        : [...prev, value]
+    );
+  };
+
   return (
-    <motion.aside
-      initial={{ opacity: 0, x: -20 }}
-      animate={{ opacity: 1, x: 0 }}
-      className="
-        sticky top-24
-        rounded-2xl
-        bg-white/90 backdrop-blur
-        shadow-xl
-        border border-gray-200
-        p-6
-        space-y-8
-      "
-    >
-      {/* HEADER */}
-      <div className="flex items-center justify-between">
-        <h3 className="text-lg font-semibold text-gray-900">
-          Filters
-        </h3>
-        <span className="text-xs text-gray-400">
-          Refine results
-        </span>
-      </div>
+    <div className="sticky top-24 w-72 bg-white rounded-2xl border shadow-sm p-6">
+      <h2 className="text-lg font-semibold mb-6">
+        Filters
+      </h2>
 
-      {/* PRICE FILTER */}
-      <div className="space-y-3">
-        <p className="text-sm font-medium text-gray-700">
-          Price Range
-        </p>
-
-        <input
-          type="range"
-          min={500}
-          max={20000}
+      {/* PRICE */}
+      <FilterSection title="Price Range">
+        <Slider
+          value={[price]}
+          max={100000}
           step={500}
-          value={price}
-          onChange={(e) =>
-            setPrice(Number(e.target.value))
-          }
-          className="w-full accent-indigo-600 cursor-pointer"
+          onValueChange={(v) => setPrice(v[0])}
         />
-
-        <div className="flex justify-between text-xs text-gray-500">
-          <span>₹500</span>
-          <span className="font-medium text-indigo-600">
-            ₹{price}
-          </span>
-          <span>₹20,000+</span>
-        </div>
-      </div>
-
-      {/* SIZE FILTER */}
-      <div className="space-y-3">
-        <p className="text-sm font-medium text-gray-700">
-          Size
+        <p className="text-sm text-gray-600">
+          Up to ₹{price.toLocaleString()}
         </p>
+      </FilterSection>
 
-        <div className="grid grid-cols-3 gap-2">
-          {["Small", "Medium", "Large"].map((s) => {
-            const active = size === s;
-            return (
-              <button
-                key={s}
-                onClick={() =>
-                  setSize(active ? "" : s)
-                }
-                className={`
-                  h-10 rounded-xl text-sm font-medium transition
-                  ${
-                    active
-                      ? "bg-indigo-600 text-white shadow"
-                      : "bg-gray-100 hover:bg-gray-200 text-gray-700"
-                  }
-                `}
-              >
-                {s}
-              </button>
-            );
-          })}
-        </div>
-      </div>
-
-      {/* MOQ FILTER (VISUAL – BULK FOCUS) */}
-      <div className="space-y-3">
-        <p className="text-sm font-medium text-gray-700">
-          Order Type
-        </p>
-
-        <div className="space-y-2">
-          <label className="flex items-center gap-3 cursor-pointer">
+      {/* SECTIONS */}
+      <FilterSection title="Collections">
+        {[
+          { label: "Best Sellers", value: "best-sellers" },
+          { label: "New Arrivals", value: "new-arrivals" },
+          { label: "Bulking Items", value: "bulking" },
+        ].map((item) => (
+          <label
+            key={item.value}
+            className="flex items-center gap-3 cursor-pointer text-sm"
+          >
             <input
               type="checkbox"
-              checked
-              readOnly
+              checked={sections.includes(item.value)}
+              onChange={() => toggleSection(item.value)}
               className="accent-indigo-600"
             />
-            <span className="text-sm text-gray-600">
-              Bulk orders (MOQ ≥ 50)
-            </span>
+            {item.label}
           </label>
+        ))}
+      </FilterSection>
 
-          <p className="text-xs text-gray-400 ml-6">
-            All products are export-ready bulk items
-          </p>
-        </div>
-      </div>
+      {/* SORT */}
+      <FilterSection title="Sort By">
+        <select
+          value={sort}
+          onChange={(e) => setSort(e.target.value)}
+          className="w-full h-10 border rounded-lg px-3 text-sm"
+        >
+          <option value="latest">Latest</option>
+          <option value="price-asc">Price: Low → High</option>
+          <option value="price-desc">Price: High → Low</option>
+        </select>
+      </FilterSection>
 
-      {/* TRUST BADGES */}
-      <div className="pt-4 border-t space-y-3">
-        <p className="text-xs font-semibold text-gray-500 uppercase tracking-wide">
-          Why Aurindel?
-        </p>
-
-        <ul className="space-y-2 text-sm text-gray-600">
-          <li className="flex items-center gap-2">
-            ✅ Handcrafted by artisans
-          </li>
-          <li className="flex items-center gap-2">
-            🚚 Pan-India & export shipping
-          </li>
-          <li className="flex items-center gap-2">
-            🏆 Premium quality assurance
-          </li>
-        </ul>
-      </div>
-    </motion.aside>
+      {/* CLEAR */}
+      <button
+        onClick={() => {
+          setPrice(100000);
+          setSections([]);
+          setSort("latest");
+        }}
+        className="w-full h-11 mt-2 rounded-xl bg-gray-100 hover:bg-gray-200 transition text-sm"
+      >
+        Clear Filters
+      </button>
+    </div>
   );
 }
