@@ -2,48 +2,27 @@ import mongoose from "mongoose";
 
 const ProductSchema = new mongoose.Schema(
   {
-    name: {
+    name: { type: String, required: true },
+
+    slug: {
       type: String,
       required: true,
-      trim: true,
+      unique: true,
     },
 
-   slug: {
-  type: String,
-  required: true,
-  unique: true,
-  index: true,
-},
+    price: { type: Number, required: true },
 
-    price: {
-      type: Number,
-      required: true,
-    },
+    description: { type: String, default: "" },
 
-    description: {
-      type: String,
-      default: "",
-    },
+    category: { type: String, required: true },
 
-    category: {
-      type: String,
-      required: true,
-    },
+    sections: [{ type: String }],
 
-    sections: {
-      type: [String],
-      default: [],
-    },
+    images: [{ type: String, required: true }],
 
-    images: {
-      type: [String],
-      required: true,
-    },
+    minOrderQty: { type: Number, default: 50 },
 
-    minOrderQty: {
-      type: Number,
-      default: 50,
-    },
+    isDeleted: { type: Boolean, default: false },
   },
   { timestamps: true }
 );
