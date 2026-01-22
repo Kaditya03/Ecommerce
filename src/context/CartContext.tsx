@@ -1,65 +1,64 @@
 "use client";
 
-import { createContext, useContext, useState, useEffect } from "react";
-
-
-
+import { createContext, useContext, useEffect, useState } from "react";
 
 type CartItem = {
-  id: number;
+  _id: string;
   name: string;
   price: number;
-  image: string;
+  images: string[];
+  slug: string;
   qty: number;
   minOrderQty: number;
 };
 
 type CartContextType = {
   items: CartItem[];
-  cartCount: number; // ✅ ADD THIS
+  cartCount: number;
   addToCart: (product: any, qty?: number) => void;
-  updateQty: (id: number, qty: number) => void;
-  removeItem: (id: number) => void;
+  updateQty: (id: string, qty: number) => void;
+  removeItem: (id: string) => void;
 };
-
 
 const CartContext = createContext<CartContextType | null>(null);
 
-
 export function CartProvider({ children }: { children: React.ReactNode }) {
   const [items, setItems] = useState<CartItem[]>([]);
-const cartCount = items.length; // ✅ unique products count
 
-  /* 🔄 LOAD FROM LOCAL STORAGE */
+  // ✅ Load cart
   useEffect(() => {
     const stored = localStorage.getItem("cart");
     if (stored) setItems(JSON.parse(stored));
   }, []);
 
-  /* 💾 SAVE TO LOCAL STORAGE */
+  // ✅ Save cart
   useEffect(() => {
     localStorage.setItem("cart", JSON.stringify(items));
   }, [items]);
 
-  /* ➕ ADD TO CART */
+  // ✅ ADD TO CART (FIXED)
   const addToCart = (product: any, qty = product.minOrderQty || 50) => {
     setItems((prev) => {
-      const existing = prev.find((p) => p.id === product.id);
+      const existing = prev.find(
+        (item) => item._id === product._id
+      );
+
       if (existing) {
-        return prev.map((p) =>
-          p.id === product.id
-            ? { ...p, qty: p.qty + qty }
-            : p
+        return prev.map((item) =>
+          item._id === product._id
+            ? { ...item, qty: item.qty + qty }
+            : item
         );
       }
 
       return [
         ...prev,
         {
-          id: product.id,
+          _id: product._id,
           name: product.name,
           price: product.price,
-          image: product.images[0],
+          images: product.images,
+          slug: product.slug,
           qty,
           minOrderQty: product.minOrderQty || 50,
         },
@@ -67,38 +66,34 @@ const cartCount = items.length; // ✅ unique products count
     });
   };
 
-  /* 🔁 UPDATE QTY */
-  const updateQty = (id: number, qty: number) => {
+  // ✅ UPDATE QTY
+  const updateQty = (id: string, qty: number) => {
     setItems((prev) =>
-      prev.map((p) =>
-        p.id === id
-          ? {
-              ...p,
-              qty: Math.max(p.minOrderQty, qty),
-            }
-          : p
+      prev.map((item) =>
+        item._id === id
+          ? { ...item, qty: Math.max(item.minOrderQty, qty) }
+          : item
       )
     );
   };
 
-  /* ❌ REMOVE */
-  const removeItem = (id: number) => {
-    setItems((prev) => prev.filter((p) => p.id !== id));
+  // ✅ REMOVE ITEM
+  const removeItem = (id: string) => {
+    setItems((prev) => prev.filter((item) => item._id !== id));
   };
 
   return (
     <CartContext.Provider
-  value={{
-    items,
-    cartCount, // ✅ PASS HERE
-    addToCart,
-    updateQty,
-    removeItem,
-  }}
->
-  {children}
-</CartContext.Provider>
-
+      value={{
+        items,
+        cartCount: items.length,
+        addToCart,
+        updateQty,
+        removeItem,
+      }}
+    >
+      {children}
+    </CartContext.Provider>
   );
 }
 

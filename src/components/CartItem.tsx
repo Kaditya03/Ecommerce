@@ -14,7 +14,7 @@ export default function CartItem({ item }: any) {
     >
       {/* IMAGE */}
       <img
-        src={item.image}
+        src={item.images?.[0]}
         alt={item.name}
         className="w-24 h-24 rounded-xl object-cover"
       />
@@ -33,7 +33,7 @@ export default function CartItem({ item }: any) {
         <div className="flex items-center gap-3 mt-3">
           <button
             onClick={() =>
-              updateQty(item.id, item.qty - 5)
+              updateQty(item._id, item.qty - 5)
             }
             className="w-8 h-8 border rounded-full"
           >
@@ -46,7 +46,7 @@ export default function CartItem({ item }: any) {
 
           <button
             onClick={() =>
-              updateQty(item.id, item.qty + 5)
+              updateQty(item._id, item.qty + 5)
             }
             className="w-8 h-8 border rounded-full"
           >
@@ -61,7 +61,7 @@ export default function CartItem({ item }: any) {
 
       {/* REMOVE */}
       <button
-        onClick={() => removeItem(item.id)}
+        onClick={() => removeItem(item._id)}
         className="text-gray-400 hover:text-red-500 transition"
       >
         ✕

@@ -12,10 +12,17 @@ function createSlug(text: string) {
 }
 
 /* ================= GET PRODUCTS ================= */
-export async function GET() {
+export async function GET(req: Request) {
   try {
     await connectDB();
-    const products = await Product.find({}).sort({ createdAt: -1 });
+
+    const { searchParams } = new URL(req.url);
+    const category = searchParams.get("category");
+
+    const products = category
+      ? await Product.find({ category }).sort({ createdAt: -1 })
+      : await Product.find().sort({ createdAt: -1 });
+
     return NextResponse.json(products);
   } catch (err) {
     return NextResponse.json(
@@ -31,7 +38,6 @@ export async function POST(req: Request) {
     await connectDB();
 
     const body = await req.json();
-
     const {
       name,
       price,
@@ -42,7 +48,6 @@ export async function POST(req: Request) {
       minOrderQty,
     } = body;
 
-    // ✅ VALIDATION
     if (!name || !price || !category || !images?.length) {
       return NextResponse.json(
         { message: "Missing required fields" },
@@ -50,7 +55,7 @@ export async function POST(req: Request) {
       );
     }
 
-    // ✅ SLUG GENERATION
+    // ✅ Unique slug
     let baseSlug = createSlug(name);
     let slug = baseSlug;
     let count = 1;
@@ -59,7 +64,6 @@ export async function POST(req: Request) {
       slug = `${baseSlug}-${count++}`;
     }
 
-    // ✅ CREATE PRODUCT
     const product = await Product.create({
       name,
       slug,
