@@ -14,25 +14,29 @@ export default function AdminLogin() {
   const [status, setStatus] =
     useState<"idle" | "loading" | "success" | "error">("idle");
 
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    setStatus("loading");
+const handleSubmit = async (e: React.FormEvent) => {
+  e.preventDefault();
+  setStatus("loading");
 
-    const res = await fetch("/api/admin/login", {
+  try {
+    const res = await fetch("/api/admin-auth/login", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       credentials: "include",
+      cache: "no-store",
       body: JSON.stringify({ email, password }),
     });
 
-    if (res.ok) {
-      setStatus("success");
-      setTimeout(() => router.push("/admin/dashboard"), 800);
-    } else {
-      setStatus("error");
-      setTimeout(() => setStatus("idle"), 1500);
-    }
-  };
+    if (!res.ok) throw new Error("Login failed");
+
+    setStatus("success");
+    setTimeout(() => router.push("/admin/dashboard"), 800);
+  } catch (err) {
+    console.error(err);
+    setStatus("error");
+    setTimeout(() => setStatus("idle"), 1500);
+  }
+};
 
   return (
     <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-indigo-50 to-indigo-100 px-4">
@@ -121,7 +125,7 @@ export default function AdminLogin() {
           type="submit"
           disabled={status === "loading"}
           className={`w-full py-3 rounded-xl font-semibold transition ${
-            status === "success"
+            status === "loading"
               ? "bg-green-600 text-white"
               : "bg-indigo-600 hover:bg-indigo-700 text-white"
           }`}

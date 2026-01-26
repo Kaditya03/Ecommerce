@@ -28,7 +28,7 @@ export default function AddProductPage() {
 
     setLoading(true);
 
-    const res = await fetch("/api/admin/products", {
+    const res = await fetch("/api/admin-auth/products", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({

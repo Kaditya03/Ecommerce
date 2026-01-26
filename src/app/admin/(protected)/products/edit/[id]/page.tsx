@@ -18,7 +18,7 @@ export default function EditProduct({ params }: any) {
   }, []);
 
   const saveChanges = async () => {
-    await fetch(`/api/admin/products/${params.id}`, {
+    await fetch(`/api/admin-auth/products/${params.id}`, {
       method: "PUT",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify(product),

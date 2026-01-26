@@ -7,16 +7,16 @@ export default async function Dashboard() {
   const headersList = await headers();
   const host = headersList.get("host");
 
-  const baseUrl = host?.includes("localhost")
-    ? `http://${host}`
+  const baseUrl = process.env.NODE_ENV === "development"
+    ? "http://localhost:3000"
     : `https://${host}`;
 
-  const res = await fetch(`${baseUrl}/api/admin/dashboard`, {
+  const res = await fetch(`${baseUrl}/api/admin-auth/dashboard`, {
     cache: "no-store",
   });
 
   if (!res.ok) {
-    throw new Error("Failed to load dashboard");
+    throw new Error("Failed to load dashboard data");
   }
 
   const data = await res.json();
