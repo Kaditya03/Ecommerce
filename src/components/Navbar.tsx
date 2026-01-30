@@ -23,7 +23,7 @@ import { useMenu } from "@/context/MenuContext";
 import { useAuth } from "@/context/AuthContext";
 import { useCart } from "@/context/CartContext";
 
-/* ================= TYPES ================= */
+/* ---------------- TYPES ---------------- */
 
 type MobileMenu = "shop" | "about" | null;
 
@@ -33,7 +33,7 @@ type NavSubLinkProps = {
   href: string;
 };
 
-/* ================= COMPONENT ================= */
+/* ---------------- COMPONENT ---------------- */
 
 export default function Navbar() {
   const { menuOpen, setMenuOpen } = useMenu();
@@ -41,12 +41,13 @@ export default function Navbar() {
   const { isLoggedIn, user, logout } = useAuth();
 
   const [scrolled, setScrolled] = useState(false);
-  const [activeMobileSub, setActiveMobileSub] = useState<MobileMenu>(null);
+  const [activeMobileSub, setActiveMobileSub] =
+    useState<MobileMenu>(null);
 
   useEffect(() => {
-    const handleScroll = () => setScrolled(window.scrollY > 30);
-    window.addEventListener("scroll", handleScroll);
-    return () => window.removeEventListener("scroll", handleScroll);
+    const onScroll = () => setScrolled(window.scrollY > 30);
+    window.addEventListener("scroll", onScroll);
+    return () => window.removeEventListener("scroll", onScroll);
   }, []);
 
   const closeMenu = () => {
@@ -65,8 +66,10 @@ export default function Navbar() {
         }`}
       >
         <div className="max-w-[1600px] mx-auto px-6 md:px-12 flex items-center justify-between">
+
           {/* LEFT */}
           <div className="hidden lg:flex items-center gap-10 flex-1 text-[10px] uppercase tracking-[0.4em] text-stone-500 font-medium">
+            {/* COLLECTIONS */}
             <div className="relative group py-2">
               <span className="flex items-center gap-1 cursor-default">
                 Collections <ChevronDown size={10} />
@@ -78,6 +81,7 @@ export default function Navbar() {
               </div>
             </div>
 
+            {/* ABOUT */}
             <div className="relative group py-2">
               <span className="flex items-center gap-1 cursor-default">
                 About <ChevronDown size={10} />
@@ -98,7 +102,13 @@ export default function Navbar() {
                 scrolled ? "h-7 w-24 md:h-10 md:w-36" : "h-8 w-28 md:h-14 md:w-52"
               }`}
             >
-              <Image src="/images/AurindelLogo.png" alt="Aurindel" fill className="object-contain" priority />
+              <Image
+                src="/images/AurindelLogo.png"
+                alt="Aurindel"
+                fill
+                className="object-contain"
+                priority
+              />
             </div>
           </Link>
 
@@ -106,23 +116,25 @@ export default function Navbar() {
           <div className="flex items-center gap-4 flex-1 justify-end">
             <Search size={18} />
 
+            {/* USER */}
             <div className="hidden lg:block relative group">
               <User size={18} />
               <div className="absolute right-0 mt-2 w-52 bg-white border shadow-xl opacity-0 group-hover:opacity-100 transition-all p-5">
                 {!isLoggedIn ? (
                   <>
-                    <Link href="/login">Sign In</Link>
+                    <Link href="/login" className="block mb-2">Sign In</Link>
                     <Link href="/register">Join</Link>
                   </>
                 ) : (
                   <>
-                    <p className="text-xs">Hello, {user?.name}</p>
-                    <button onClick={logout}>Logout</button>
+                    <p className="text-xs mb-2">Hello, {user?.name || "User"}</p>
+                    <button onClick={logout} className="text-red-500">Logout</button>
                   </>
                 )}
               </div>
             </div>
 
+            {/* CART */}
             <Link href="/cart" className="relative">
               <ShoppingBag size={18} />
               {cartCount > 0 && (
@@ -132,6 +144,7 @@ export default function Navbar() {
               )}
             </Link>
 
+            {/* MOBILE MENU */}
             <button onClick={() => setMenuOpen(true)} className="lg:hidden">
               <Menu size={22} />
             </button>
@@ -150,9 +163,7 @@ export default function Navbar() {
           >
             <div className="flex justify-between p-6 border-b">
               <span>Menu</span>
-              <button onClick={closeMenu}>
-                <X />
-              </button>
+              <button onClick={closeMenu}><X /></button>
             </div>
 
             <div className="p-8 space-y-4">
@@ -167,9 +178,9 @@ export default function Navbar() {
 
               {activeMobileSub === "shop" && (
                 <div className="pl-4 space-y-2">
-                  {["Pottery", "Handlooms", "Brass Art"].map((i) => (
-                    <Link key={i} href={`/collections/${i.toLowerCase()}`}>
-                      {i}
+                  {["Pottery", "Handlooms", "Brass Art"].map((item) => (
+                    <Link key={item} href={`/collections/${item.toLowerCase()}`}>
+                      {item}
                     </Link>
                   ))}
                 </div>
@@ -182,7 +193,7 @@ export default function Navbar() {
   );
 }
 
-/* ================= SUB COMPONENT ================= */
+/* ---------------- SUB COMPONENT ---------------- */
 
 function NavSubLink({ title, desc, href }: NavSubLinkProps) {
   return (
