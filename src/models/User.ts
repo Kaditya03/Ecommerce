@@ -1,11 +1,8 @@
-import mongoose, { Schema, models } from "mongoose";
+import mongoose from "mongoose";
 
-const UserSchema = new Schema(
+const UserSchema = new mongoose.Schema(
   {
-    name: {
-      type: String,
-      required: true,
-    },
+    name: String,
 
     email: {
       type: String,
@@ -16,43 +13,17 @@ const UserSchema = new Schema(
     password: {
       type: String,
       required: true,
+      select: false, // 🔴 REQUIRED
     },
 
     role: {
       type: String,
+      enum: ["user", "admin"],
       default: "user",
     },
-
-    photo: {
-      type: String,
-      default: "",
-    },
-
-    // ✅ FORGOT PASSWORD FIELDS (MUST BE INSIDE SCHEMA)
-    resetPasswordToken: {
-      type: String,
-      default: null,
-    },
-
-    resetPasswordExpiry: {
-      type: Date,
-      default: null,
-    },
-    isEmailVerified: {
-  type: Boolean,
-  default: false,
-},
-
-emailVerificationToken: {
-  type: String,
-  default: null,
-},
-
   },
   { timestamps: true }
 );
 
-const User =
-  models.User || mongoose.model("User", UserSchema);
-
-export default User;
+export default mongoose.models.User ||
+  mongoose.model("User", UserSchema);

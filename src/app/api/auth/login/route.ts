@@ -1,50 +1,65 @@
 import { NextResponse } from "next/server";
-import connectDB from "@/lib/db";
-import User from "@/models/User";
 import bcrypt from "bcryptjs";
 import jwt from "jsonwebtoken";
-
-export const runtime = "nodejs";
+import connectDB from "@/lib/db";
+import User from "@/models/User";
 
 export async function POST(req: Request) {
-  await connectDB();
+  try {
+    await connectDB();
 
-  const { email, password } = await req.json();
+    const { email, password } = await req.json();
 
-  const user = await User.findOne({ email });
+    if (!email || !password) {
+      return NextResponse.json(
+        { message: "Email and password required" },
+        { status: 400 }
+      );
+    }
 
-  if (!user)
-    return NextResponse.json({ message: "Invalid credentials" }, { status: 401 });
+    const user = await User.findOne({ email }).select("+password");
 
-  if (!user.isEmailVerified)
-    return NextResponse.json({ message: "Verify email first" }, { status: 403 });
+    if (!user) {
+      return NextResponse.json(
+        { message: "Invalid credentials" },
+        { status: 401 }
+      );
+    }
 
-  const isMatch = await bcrypt.compare(password, user.password);
-  if (!isMatch)
-    return NextResponse.json({ message: "Invalid credentials" }, { status: 401 });
+    const isMatch = await bcrypt.compare(password, user.password);
 
-  const token = jwt.sign(
-    { id: user._id, role: user.role },
-    process.env.JWT_SECRET!,
-    { expiresIn: "7d" }
-  );
+    if (!isMatch) {
+      return NextResponse.json(
+        { message: "Invalid credentials" },
+        { status: 401 }
+      );
+    }
 
+    const token = jwt.sign(
+      {
+        id: user._id,
+        role: user.role,
+      },
+      process.env.JWT_SECRET!,
+      { expiresIn: "7d" }
+    );
 
-  const res = NextResponse.json({
-    user: {
-      id: user._id,
-      name: user.name,
-      email: user.email,
-      role: user.role,
-    },
-  });
+    return NextResponse.json({
+      message: "Login successful",
+      user: {
+        id: user._id,
+        name: user.name,
+        email: user.email,
+        role: user.role,
+      },
+      token,
+    });
 
-  res.cookies.set("token", token, {
-    httpOnly: true,
-    sameSite: "lax",
-    secure: process.env.NODE_ENV === "production",
-    path: "/",
-  });
-
-  return res;
+  } catch (error) {
+    console.error(error);
+    return NextResponse.json(
+      { message: "Login failed" },
+      { status: 500 }
+    );
+  }
 }
