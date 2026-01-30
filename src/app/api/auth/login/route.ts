@@ -35,6 +35,7 @@ export async function POST(req: Request) {
       );
     }
 
+    // ✅ CREATE TOKEN
     const token = jwt.sign(
       {
         id: user._id,
@@ -44,7 +45,8 @@ export async function POST(req: Request) {
       { expiresIn: "7d" }
     );
 
-    return NextResponse.json({
+    // ✅ VERY IMPORTANT — SET COOKIE
+    const response = NextResponse.json({
       message: "Login successful",
       user: {
         id: user._id,
@@ -52,11 +54,19 @@ export async function POST(req: Request) {
         email: user.email,
         role: user.role,
       },
-      token,
     });
 
+    response.cookies.set("token", token, {
+      httpOnly: true,
+      secure: true,          // REQUIRED on Vercel
+      sameSite: "none",      // REQUIRED on Vercel
+      path: "/",
+      maxAge: 60 * 60 * 24 * 7, // 7 days
+    });
+
+    return response;
   } catch (error) {
-    console.error(error);
+    console.error("LOGIN ERROR:", error);
     return NextResponse.json(
       { message: "Login failed" },
       { status: 500 }
